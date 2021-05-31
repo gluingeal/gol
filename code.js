@@ -6,6 +6,9 @@ var playing = false;
 var grid = new Array(rows);
 var nextGrid = new Array(rows);
 
+var timer;
+var reproductionTime = 200;
+
 function initializeGrids() {
   for (var i = 0; i < rows; i++) {
     grid[i] = new Array(cols);
@@ -64,12 +67,31 @@ function setupControlButtons() {
   startButton.onclick = startButtonHandler;
   var clearButton = document.getElementById('clear');
   clearButton.onclick = clearButtonHandler;
+
+  var randomButton = document.getElementById('random');
+  randomButton.onclick = randomButtonHandler;
+}
+
+function randomButtonHandler() {
+  for (var i = 0; i < rows; i++) {
+    for (var j = 0; j < cols; j++) {
+      grid[i][j] = Math.floor(Math.random() * 2);
+      var cell = document.getElementById(i + '_' + j);
+      if (grid[i][j] == 1) cell.setAttribute('class', 'live');
+    }
+  }
 }
 
 function clearButtonHandler() {
   playing = false;
   var startButton = document.getElementById('start');
   startButton.innerHTML = 'start';
+  clearTimeout(timer);
+  var cellList = document.getElementsByClassName('live');
+  for (var i = 0; i < cellList.length; i++) {
+    cellList[i].setAttribute('class', 'dead');
+  }
+  resetGrids();
 }
 
 function startButtonHandler() {
@@ -77,6 +99,7 @@ function startButtonHandler() {
     console.log('Pause the Game');
     playing = false;
     this.innerHTML = 'continue';
+    clearTimeout(timer);
   } else {
     console.log('Cont the game');
     playing = true;
@@ -88,6 +111,10 @@ function startButtonHandler() {
 function play() {
   console.log('Play the game');
   computeNextGen();
+
+  if (playing) {
+    timer = setTimeout(play, reproductionTime);
+  }
 }
 
 function computeNextGen() {
@@ -96,6 +123,8 @@ function computeNextGen() {
       applyRules(i, j);
     }
   }
+  copyAndResetGrid();
+  updateView();
 }
 
 function applyRules(row, col) {
@@ -142,6 +171,28 @@ function countNeighbors(row, col) {
     if (grid[row + 1][col + 1] == 1) count++;
   }
   return count;
+}
+
+function copyAndResetGrid() {
+  for (var i = 0; i < rows; i++) {
+    for (var j = 0; j < cols; j++) {
+      grid[i][j] = nextGrid[i][j];
+      nextGrid[i][j] = 0;
+    }
+  }
+}
+
+function updateView() {
+  for (var i = 0; i < rows; i++) {
+    for (var j = 0; j < cols; j++) {
+      var cell = document.getElementById(i + '_' + j);
+      if (grid[i][j] == 0) {
+        cell.setAttribute('class', 'dead');
+      } else {
+        cell.setAttribute('class', 'live');
+      }
+    }
+  }
 }
 
 // initialize
