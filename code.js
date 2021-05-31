@@ -3,18 +3,36 @@ var cols = 24;
 
 var playing = false;
 
-// initialize
-function initialize() {
-  createTable();
-  setupControlButtons();
+var grid = new Array(rows);
+var nextGrid = new Array(rows);
+
+function initializeGrids() {
+  for (var i = 0; i < rows; i++) {
+    grid[i] = new Array(cols);
+    nextGrid[i] = new Array(cols);
+  }
+}
+
+function resetGrids() {
+  for (var i = 0; i < rows; i++) {
+    for (var j = 0; j < cols; j++) {
+      grid[i][j] = 0;
+      nextGrid[i][j] = 0;
+    }
+  }
 }
 
 function cellClickHandler() {
+    var rowcol = this.id.split("_");
+    var row = rowcol[0];
+    var col = rowcol[1];
   var classes = this.getAttribute('class');
   if (classes.indexOf('live') > -1) {
     this.setAttribute('class', 'dead');
+    grid[row][col] = 0;
   } else {
     this.setAttribute('class', 'live');
+    grid[row][col] = 1;
   }
 }
 
@@ -49,10 +67,9 @@ function setupControlButtons() {
 }
 
 function clearButtonHandler() {
-    playing = false;
-    var startButton = document.getElementById('start');
-    startButton.innerHTML = "start"
-
+  playing = false;
+  var startButton = document.getElementById('start');
+  startButton.innerHTML = 'start';
 }
 
 function startButtonHandler() {
@@ -69,8 +86,16 @@ function startButtonHandler() {
 }
 
 function play() {
-    console.log("Play the game")
+  console.log('Play the game');
+}
+
+// initialize
+function initialize() {
+  createTable();
+  initializeGrids();
+  resetGrids();
+  setupControlButtons();
 }
 
 // start everything
-window.onload = initialize;
+window.onload = initialize();
